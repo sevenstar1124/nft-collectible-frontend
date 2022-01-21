@@ -32,6 +32,29 @@ function App() {
 
   const connectWalletHandler = () => { }
 
+  const withdrawHandler = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const nftContract = new ethers.Contract(contractAddress, abi, signer);
+
+        console.log("Initialize payment");
+        let nftTxn = await nftContract.withdraw();
+
+        console.log("Withdrawal... please wait");
+        await nftTxn.wait();
+        console.log(`Withdrawed, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
+      } else {
+        console.log("Ethereum object does not exist");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const mintNftHandler = async () => {
     try {
       const { ethereum } = window;
@@ -39,6 +62,8 @@ function App() {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
+        console.log('provider', provider);
+        console.log('signer', signer);
         const nftContract = new ethers.Contract(contractAddress, abi, signer);
 
         console.log("Initialize payment");
@@ -65,9 +90,14 @@ function App() {
 
   const mintNftButton = () => {
     return (
-      <button onClick={mintNftHandler} className='cta-button mint-nft-button'>
-        Mint NFT
-      </button>
+      <div>
+        <button onClick={mintNftHandler} className='cta-button mint-nft-button'>
+          Mint NFT
+        </button>
+        <button onClick={withdrawHandler} className='cta-button withdraw-button'>
+          Withdraw
+        </button>
+      </div>
     )
   }
 
